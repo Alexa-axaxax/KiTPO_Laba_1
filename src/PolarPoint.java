@@ -50,8 +50,8 @@ public class PolarPoint implements UserType {
 
     @Override
     public Object parseValue(String ss) {
-        String[] parts = ss.split(";");
-        double angle = Double.parseDouble(ss);
+        String[] parts = ss.split(",");
+        double angle = Double.parseDouble(parts[1]);
         return new PolarPoint(Double.parseDouble(parts[0].trim()), normalizeAngle(angle));
     }
 
