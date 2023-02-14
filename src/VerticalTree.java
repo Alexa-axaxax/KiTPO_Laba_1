@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import java.util.Random;
@@ -12,11 +11,22 @@ import java.util.Random;
 public class VerticalTree<T extends UserType> {
 
     private VerticalTreeNode<T> root;
-
+    private UserType sample;
+    
     public VerticalTree() {
         root = null;
+        sample = null;
     }
-
+    
+    public VerticalTree(UserType sample) {
+        root = null;
+        this.sample = sample;
+    }
+    
+    public void setSample(UserType sample) {
+        this.sample = sample;
+    }
+    
     public void setRoot(VerticalTreeNode<T> root) {
         this.root = root;
     }
@@ -30,7 +40,7 @@ public class VerticalTree<T extends UserType> {
         if (root == null) {
             root = new VerticalTreeNode<>(v);
         } else {
-            root.add(v);
+            root.add(v, sample.getTypeComparator());
         }
     }
 
@@ -99,13 +109,14 @@ public class VerticalTree<T extends UserType> {
         if (root == null) {
             root = new VerticalTreeNode<>(v);
         } else {
-            root.addBalanced(v);
+            root.addBalanced(v, sample.getTypeComparator());
         }
     }
 
 
     public static void main(String[] args) {
-        VerticalTree<Integer> tree = new VerticalTree<>();
+        Integer sample = new Integer();
+        VerticalTree<Integer> tree = new VerticalTree<>(sample);
         Random random = new Random(1);
         int n = 20;
         int limit = 100;
@@ -157,12 +168,12 @@ public class VerticalTree<T extends UserType> {
         }
     }
 
-    public static <T extends UserType> VerticalTree<T> deserialize(String s, Class<T> clazz) {
+    public static <T extends UserType> VerticalTree<UserType> deserialize(String s, Class<T> clazz) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
             mapper.registerModule(new SimpleModule().addAbstractTypeMapping(UserType.class, clazz));
-            return mapper.readValue(s, new TypeReference<VerticalTree<T>>() {});
+            return mapper.readValue(s, new TypeReference<VerticalTree<UserType>>() {});
         }
         catch (JsonProcessingException e) {
             throw new RuntimeException(e);
