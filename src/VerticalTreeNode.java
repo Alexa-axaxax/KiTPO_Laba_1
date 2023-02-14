@@ -29,8 +29,8 @@ public class VerticalTreeNode<T extends UserType> {
         return subtreeSize;
     }
 
-    public void add(T v) {
-        if( v.getTypeComparator().compare(data, v) > 0) {
+    public void add(T v, Comparator comparator) {
+        if( comparator.compare(data, v) > 0) {
             T sw = data;
             data = v;
             v = sw;
@@ -41,13 +41,13 @@ public class VerticalTreeNode<T extends UserType> {
             children.add(new VerticalTreeNode<>(v));
         }
         else {
-            children.get(childIndex).add(v);
+            children.get(childIndex).add(v, comparator);
         }
         subtreeSize++;
     }
 
-    public void addBalanced(T v) {
-        if( v.getTypeComparator().compare(data, v) > 0) {
+    public void addBalanced(T v, Comparator comparator) {
+        if( comparator.compare(data, v) > 0) {
             T sw = data;
             data = v;
             v = sw;
@@ -57,10 +57,10 @@ public class VerticalTreeNode<T extends UserType> {
             children.add(new VerticalTreeNode<>(v));
         }
         else if (children.get(0).subtreeSize > children.get(1).subtreeSize) {
-            children.get(1).addBalanced(v);
+            children.get(1).addBalanced(v, comparator);
         }
         else {
-            children.get(0).addBalanced(v);
+            children.get(0).addBalanced(v, comparator);
         }
         subtreeSize++;
     }
