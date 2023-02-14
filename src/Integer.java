@@ -1,9 +1,15 @@
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.InputStreamReader;
 import java.util.Scanner;
 
 public class Integer implements UserType {
     private int value;
 
+    public Integer() {
+        this(0);
+    }
+    
     public Integer(int value) {
         this.value = value;
     }
