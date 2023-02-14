@@ -6,25 +6,26 @@ import java.util.Scanner;
 import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS;
 
 public class GUI extends JFrame {
-    private VerticalTree<PolarPoint> verticalTree;
+    private VerticalTree<UserType> verticalTree;
+    private UserType sample;
     private JTextArea treeArea;
     private JTextArea outputArea;
 
-    private JTextField polarDistanceTextField;
-    private JTextField polarAngleTextField;
+    private JTextField valueTextField;
     private JTextField indexTextField;
-
+    
     private JButton addButton;
     private JButton getButton;
     private JButton removeButton;
     private JButton balanceButton;
     private JButton savebutton;
     private JButton loadButton;
-    public GUI() {
-        setTitle("Polar point vertical tree");
+    public GUI(UserType userType) {
+        setTitle("Vertical tree");
         setPreferredSize(new Dimension(600, 600));
         setResizable(false);
-
+        
+        sample = userType;
         verticalTree = new VerticalTree<>();
 
         getContentPane().setLayout(new BorderLayout());
@@ -56,38 +57,25 @@ public class GUI extends JFrame {
 
         JPanel inputButtonPanel = new JPanel(new BorderLayout());
         JPanel inputPanel = new JPanel(new GridLayout(2, 2));
-        inputPanel.add(new JLabel("Polar distance:"));
-        polarDistanceTextField = new JTextField();
-        inputPanel.add(polarDistanceTextField);
-        inputPanel.add(new JLabel("Polar angle:"));
-        polarAngleTextField = new JTextField();
-        inputPanel.add(polarAngleTextField);
+        inputPanel.add(new JLabel("Value:"));
+        valueTextField = new JTextField();
+        inputPanel.add(valueTextField);
 
-        addButton = new JButton("Add point");
+        addButton = new JButton("Add");
         inputButtonPanel.add(inputPanel, BorderLayout.CENTER);
         inputButtonPanel.add(addButton, BorderLayout.SOUTH);
         inputButtonPanel.setBorder(BorderFactory.createLineBorder(Color.black));
         addButton.addActionListener(e -> {
-            double distance = -1;
+            UserType value;
             try {
-                distance = Double.parseDouble(polarDistanceTextField.getText());
+                value = (UserType) sample.parseValue(valueTextField.getText());
             }
             catch (Exception ex) {
-                addErrorMessage("Can not parse double from polar point distance");
+                addErrorMessage("Can not parse " + userType.typeName() + " from text field");
                 return;
             }
-
-            double angle = -1;
-            try {
-                angle = Double.parseDouble(polarAngleTextField.getText());
-            }
-            catch (Exception ex) {
-                addErrorMessage("Can not parse double from polar point angle");
-                return;
-            }
-            PolarPoint p = new PolarPoint(distance, angle);
-            addMessage("Point " + p + " was added to the tree");
-            verticalTree.add(p);
+            addMessage(value + " was added to the tree");
+            verticalTree.add(value);
             updateTreeView();
         });
         controlPanel.add(inputButtonPanel);
@@ -100,8 +88,8 @@ public class GUI extends JFrame {
         getButton.addActionListener(e -> {
             try {
                 int index = java.lang.Integer.parseInt(indexTextField.getText());
-                PolarPoint p = verticalTree.get(index);
-                addMessage("Point " + p + " is at index " + index);
+                UserType t = verticalTree.get(index);
+                addMessage(t + " is at index " + index);
             }
             catch (IndexOutOfBoundsException ex) {
                 addErrorMessage("Input index is out of bounds");
@@ -115,9 +103,9 @@ public class GUI extends JFrame {
         removeButton.addActionListener(e -> {
             try {
                 int index = java.lang.Integer.parseInt(indexTextField.getText());
-                PolarPoint p = verticalTree.remove(index);
+                UserType u = verticalTree.remove(index);
                 updateTreeView();
-                addMessage("Point " + p + " removed from index " + index);
+                addMessage(u + " removed from index " + index);
             }
             catch (IndexOutOfBoundsException ex) {
                 addErrorMessage("Input index is out of bounds");
@@ -160,7 +148,7 @@ public class GUI extends JFrame {
                 while(scanner.hasNextLine()) {
                     builder.append(scanner.nextLine()).append(System.lineSeparator());
                 }
-                verticalTree = VerticalTree.deserialize(builder.toString(), PolarPoint.class);
+                verticalTree = VerticalTree.deserialize(builder.toString(), sample.getClass());
                 updateTreeView();
             } catch (Exception ex) {
                 addErrorMessage("Can not load from file: " + ex.getMessage());
@@ -186,6 +174,7 @@ public class GUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(GUI::new);
+        UserFactory userFactory = new UserFactory();
+        SwingUtilities.invokeLater(() -> new GUI(userFactory.getBuilderByName("Integer")));
     }
 }
