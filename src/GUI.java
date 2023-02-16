@@ -2,15 +2,20 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.PrintWriter;
 import java.util.Scanner;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS;
 
 public class GUI extends JFrame {
     private VerticalTree<UserType> verticalTree;
+    
     private UserType sample;
+    
     private JTextArea treeArea;
     private JTextArea outputArea;
-
+    
+    JComboBox<String> typeComboBox;
     private JTextField valueTextField;
     private JTextField indexTextField;
     
@@ -20,14 +25,11 @@ public class GUI extends JFrame {
     private JButton balanceButton;
     private JButton savebutton;
     private JButton loadButton;
-    public GUI(UserType userType) {
+    public GUI() {
         setTitle("Vertical tree");
         setPreferredSize(new Dimension(600, 600));
         setResizable(false);
-        
-        sample = userType;
-        verticalTree = new VerticalTree<>();
-
+       
         getContentPane().setLayout(new BorderLayout());
         treeArea = new JTextArea();
         treeArea.setEditable(false);
@@ -56,6 +58,20 @@ public class GUI extends JFrame {
 
 
         JPanel inputButtonPanel = new JPanel(new BorderLayout());
+        UserFactory userFactory = new UserFactory();
+        typeComboBox = new JComboBox<>(new DefaultComboBoxModel<>(userFactory.getTypeNameList().toArray(new String[0])));
+        typeComboBox.setSelectedIndex(0);
+        sample = userFactory.getBuilderByName(typeComboBox.getSelectedItem().toString());
+        verticalTree = new VerticalTree<>(sample);
+        typeComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                String item = e.getItem().toString();
+                sample = userFactory.getBuilderByName(item);
+                verticalTree = new VerticalTree<>(sample);
+                updateTreeView();
+            }
+        });
+        controlPanel.add(typeComboBox);
         JPanel inputPanel = new JPanel(new GridLayout(2, 2));
         inputPanel.add(new JLabel("Value:"));
         valueTextField = new JTextField();
@@ -175,6 +191,6 @@ public class GUI extends JFrame {
 
     public static void main(String[] args) {
         UserFactory userFactory = new UserFactory();
-        SwingUtilities.invokeLater(() -> new GUI(userFactory.getBuilderByName("Integer")));
+        SwingUtilities.invokeLater(GUI::new);
     }
 }
