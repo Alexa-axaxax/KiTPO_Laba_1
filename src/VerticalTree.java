@@ -115,8 +115,10 @@ public class VerticalTree<T extends UserType> {
 
 
     public static void main(String[] args) {
-        Integer sample = new Integer();
-        VerticalTree<Integer> tree = new VerticalTree<>(sample);
+        UserFactory factory = new UserFactory();
+        UserType sample = factory.getBuilderByName("Integer");
+        VerticalTree<UserType> tree = new VerticalTree<>(sample);
+        
         Random random = new Random(1);
         int n = 20;
         int limit = 100;
