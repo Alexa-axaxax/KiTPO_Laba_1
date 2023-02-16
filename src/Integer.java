@@ -41,6 +41,7 @@ public class Integer implements UserType {
         return new Integer(java.lang.Integer.parseInt(ss));
     }
 
+    @JsonIgnore
     @Override
     public Comparator getTypeComparator() {
         return (o1, o2) -> java.lang.Integer.compare(((Integer)o1).value, ((Integer)o2).value);
